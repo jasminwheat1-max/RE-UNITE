@@ -1,6 +1,6 @@
 import serverless from 'serverless-http';
 import { app } from '../server/app.js';
-import { initDb } from '../server/db.js';
+import { initDb, pool } from '../server/db.js';
 
 function withTimeout(promise, ms, label) {
   return Promise.race([
@@ -29,6 +29,24 @@ export default async function (req, res) {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ pong: true, now: Date.now() }));
+    return;
+  }
+  if (req.url === '/api/dbping') {
+    // Raw DB call, completely bypassing Express/session/serverless-http,
+    // to isolate whether the hang is the DB call itself or something in
+    // that middleware chain that only manifests under Vercel's real
+    // invocation (not reproducible via a simulated local req/res).
+    const start = Date.now();
+    try {
+      const result = await withTimeout(pool.query('SELECT 1 as ok'), 8000, 'dbping');
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: true, rows: result.rows, ms: Date.now() - start }));
+    } catch (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: false, error: err.message, ms: Date.now() - start }));
+    }
     return;
   }
   try {
