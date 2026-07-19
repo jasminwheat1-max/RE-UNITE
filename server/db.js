@@ -1,7 +1,13 @@
-import pg from 'pg';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
 import bcrypt from 'bcryptjs';
 
-export const pool = new pg.Pool({
+// Vercel's serverless Node runtime can't reliably hold a raw TCP connection
+// to Postgres (connections just hang) - Neon's driver talks over WebSocket
+// instead, which works the same in plain Node (local dev) and serverless.
+neonConfig.webSocketConstructor = ws;
+
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   connectionTimeoutMillis: 8000,
   max: 3, // serverless: many short-lived invocations, keep this small
