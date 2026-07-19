@@ -1,11 +1,10 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import ws from 'ws';
 import bcrypt from 'bcryptjs';
 
-// Vercel's serverless Node runtime can't reliably hold a raw TCP connection
-// to Postgres (connections just hang) - Neon's driver talks over WebSocket
-// instead, which works the same in plain Node (local dev) and serverless.
-neonConfig.webSocketConstructor = ws;
+// Both raw TCP (pg) and the WebSocket-based Neon Pool hang indefinitely
+// from inside Vercel's serverless runtime. Fall back to plain HTTPS fetch
+// for every query instead - no persistent socket of any kind involved.
+neonConfig.poolQueryViaFetch = true;
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,17 +12,18 @@ export const pool = new Pool({
   max: 3, // serverless: many short-lived invocations, keep this small
 });
 
-const SCHEMA = `
-  CREATE TABLE IF NOT EXISTS users (
+// The HTTP-fetch query path uses prepared statements, which Postgres does not
+// allow to contain more than one command - so each CREATE TABLE runs separately.
+const SCHEMA_STATEMENTS = [
+  `CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('host','partner')),
     name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  CREATE TABLE IF NOT EXISTS events (
+  )`,
+  `CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
     host_id INTEGER NOT NULL REFERENCES users(id),
     title TEXT NOT NULL,
@@ -34,9 +34,8 @@ const SCHEMA = `
     image_url TEXT,
     status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','cancelled')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  CREATE TABLE IF NOT EXISTS tickets (
+  )`,
+  `CREATE TABLE IF NOT EXISTS tickets (
     id SERIAL PRIMARY KEY,
     event_id INTEGER NOT NULL REFERENCES events(id),
     buyer_name TEXT NOT NULL,
@@ -45,9 +44,8 @@ const SCHEMA = `
     total_cents INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'paid',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  CREATE TABLE IF NOT EXISTS offers (
+  )`,
+  `CREATE TABLE IF NOT EXISTS offers (
     id SERIAL PRIMARY KEY,
     partner_id INTEGER NOT NULL REFERENCES users(id),
     event_id INTEGER REFERENCES events(id),
@@ -56,9 +54,8 @@ const SCHEMA = `
     fee_cents INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending_review' CHECK (status IN ('pending_review','active','rejected')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  CREATE TABLE IF NOT EXISTS collaborations (
+  )`,
+  `CREATE TABLE IF NOT EXISTS collaborations (
     id SERIAL PRIMARY KEY,
     partner_id INTEGER NOT NULL REFERENCES users(id),
     event_id INTEGER NOT NULL REFERENCES events(id),
@@ -66,20 +63,21 @@ const SCHEMA = `
     fee_cents INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending_review' CHECK (status IN ('pending_review','accepted','rejected')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-
-  CREATE TABLE IF NOT EXISTS posts (
+  )`,
+  `CREATE TABLE IF NOT EXISTS posts (
     id SERIAL PRIMARY KEY,
     host_id INTEGER NOT NULL REFERENCES users(id),
     title TEXT NOT NULL,
     body TEXT NOT NULL,
     image_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-  );
-`;
+  )`,
+];
 
 export async function initDb() {
-  await pool.query(SCHEMA);
+  for (const statement of SCHEMA_STATEMENTS) {
+    await pool.query(statement);
+  }
 
   const { rows } = await pool.query('SELECT id FROM users WHERE role = $1 LIMIT 1', ['host']);
   if (rows.length === 0) {
