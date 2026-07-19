@@ -1,9 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
-import connectPgSimple from 'connect-pg-simple';
 import cors from 'cors';
-import { pool } from './db.js';
 import authRoutes from './routes/auth.js';
 import eventRoutes from './routes/events.js';
 import offerRoutes from './routes/offers.js';
@@ -13,8 +11,6 @@ import postRoutes from './routes/posts.js';
 const IS_PROD = process.env.NODE_ENV === 'production';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
-const PgSession = connectPgSimple(session);
-
 export const app = express();
 
 app.set('trust proxy', 1); // needed for secure cookies behind any platform's proxy
@@ -23,7 +19,7 @@ app.use(express.json());
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(
   session({
-    store: new PgSession({ pool, createTableIfMissing: true }),
+    // TODO: swap for a persistent store once we've confirmed basic connectivity in prod.
     secret: process.env.SESSION_SECRET || 'dev-only-secret-change-me',
     resave: false,
     saveUninitialized: false,
