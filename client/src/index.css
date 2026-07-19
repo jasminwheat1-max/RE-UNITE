@@ -118,7 +118,25 @@
   100% { transform: translate(-45px, 30px) scale(1.1); }
 }
 
-/* fireflies - small drifting points of light, upward and fading */
+/* breathwork - large soft rings that slowly expand and fade, like an inhale/exhale */
+
+.breath-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(127, 201, 143, 0.3);
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0;
+  animation: breathe ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0% { transform: translate(-50%, -50%) scale(0.82); opacity: 0; }
+  35% { opacity: 0.5; }
+  65% { opacity: 0.35; }
+  100% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
+}
+
+/* the floor - small motes of light swaying and drifting upward, dance-floor energy */
 
 .particles {
   position: absolute;
@@ -129,25 +147,36 @@
   position: absolute;
   bottom: -20px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 8px 2px var(--accent);
   opacity: 0;
   animation: rise linear infinite;
 }
 
+.particle.tone-a {
+  background: var(--accent);
+  box-shadow: 0 0 8px 2px var(--accent);
+}
+
+.particle.tone-p {
+  background: var(--pending);
+  box-shadow: 0 0 8px 2px var(--pending);
+}
+
 @keyframes rise {
   0% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 0.8; }
-  50% { transform: translateY(-48vh) translateX(14px); opacity: 0.5; }
+  10% { opacity: 0.85; }
+  30% { transform: translateY(-30vh) translateX(-16px); }
+  50% { transform: translateY(-52vh) translateX(18px); opacity: 0.55; }
+  70% { transform: translateY(-74vh) translateX(-12px); }
   90% { opacity: 0.15; }
-  100% { transform: translateY(-100vh) translateX(-10px); opacity: 0; }
+  100% { transform: translateY(-100vh) translateX(10px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .ambient-bg .blob,
-  .particle {
+  .particle,
+  .breath-ring {
     animation: none;
-    opacity: 0.4;
+    opacity: 0.3;
   }
 }
 
