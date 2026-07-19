@@ -1,49 +1,98 @@
 :root {
-  --text: #52604f;
-  --text-h: #172415;
-  --bg: #f8faf6;
-  --bg-alt: #eef3e9;
-  --bg-raised: #ffffff;
-  --border: #dbe4d5;
-  --accent: #2f7a4f;
-  --accent-hover: #24603d;
-  --accent-soft: rgba(47, 122, 79, 0.12);
-  --danger: #b23a2f;
-  --danger-soft: rgba(178, 58, 47, 0.1);
-  --success: #2f7a4f;
-  --success-soft: rgba(47, 122, 79, 0.12);
-  --pending: #a8752a;
-  --pending-soft: rgba(168, 117, 42, 0.14);
+  /* RE:UNITE commits to one nocturnal world - the ritual doesn't change
+     clothes for daylight, so this is not conditioned on OS light/dark. */
+  --text: #a9c2a4;
+  --text-h: #eef3ea;
+  --bg: #0a100b;
+  --bg-alt: #101a12;
+  --bg-raised: #131f15;
+  --bg-raised-2: #182518;
+  --border: rgba(169, 194, 164, 0.16);
+  --accent: #7fc98f;
+  --accent-hover: #96d9a4;
+  --accent-soft: rgba(127, 201, 143, 0.14);
+  --on-accent: #0a1a0d;
+  --danger: #e2685a;
+  --danger-soft: rgba(226, 104, 90, 0.14);
+  --success: #7fc98f;
+  --success-soft: rgba(127, 201, 143, 0.14);
+  --pending: #e0ac52;
+  --pending-soft: rgba(224, 172, 82, 0.16);
 
   --display: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Consolas, monospace;
 
   font: 16px/1.55 var(--sans);
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #a9c2a4;
-    --text-h: #eaf3e6;
-    --bg: #10160f;
-    --bg-alt: #182018;
-    --bg-raised: #182018;
-    --border: #2b3a2a;
-    --accent: #7fc98f;
-    --accent-hover: #96d9a4;
-    --accent-soft: rgba(127, 201, 143, 0.14);
-    --danger: #e2685a;
-    --danger-soft: rgba(226, 104, 90, 0.14);
-    --success: #7fc98f;
-    --success-soft: rgba(127, 201, 143, 0.14);
-    --pending: #e0ac52;
-    --pending-soft: rgba(224, 172, 82, 0.16);
+/* ---------------- ambient life ---------------- */
+
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.ambient-bg .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.ambient-bg .b1 {
+  width: 560px;
+  height: 560px;
+  top: -140px;
+  left: -120px;
+  background: radial-gradient(circle, rgba(127, 201, 143, 0.32), transparent 70%);
+  animation: driftA 26s ease-in-out infinite alternate;
+}
+
+.ambient-bg .b2 {
+  width: 640px;
+  height: 640px;
+  bottom: -200px;
+  right: -160px;
+  background: radial-gradient(circle, rgba(224, 172, 82, 0.14), transparent 70%);
+  animation: driftB 32s ease-in-out infinite alternate;
+}
+
+.ambient-bg .b3 {
+  width: 420px;
+  height: 420px;
+  top: 38%;
+  left: 55%;
+  background: radial-gradient(circle, rgba(127, 201, 143, 0.16), transparent 70%);
+  animation: driftC 22s ease-in-out infinite alternate;
+}
+
+@keyframes driftA {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(70px, 50px) scale(1.15); }
+}
+
+@keyframes driftB {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-60px, -40px) scale(1.1); }
+}
+
+@keyframes driftC {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+  100% { transform: translate(-42%, -58%) scale(1.2); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg .blob {
+    animation: none;
   }
 }
 
@@ -90,17 +139,23 @@ a:hover {
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
-  background: var(--bg-raised);
+  background: rgba(19, 31, 21, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   flex-wrap: wrap;
   gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .brand {
   font-family: var(--display);
   font-weight: 700;
   font-size: 21px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
   color: var(--text-h);
+  text-shadow: 0 0 18px rgba(127, 201, 143, 0.35);
 }
 
 .nav-links {
@@ -175,7 +230,7 @@ main {
   padding: 18px;
   background: var(--bg-raised);
   margin-bottom: 16px;
-  box-shadow: 0 1px 2px rgba(23, 36, 21, 0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .event-card {
@@ -183,12 +238,13 @@ main {
   color: inherit;
   overflow: hidden;
   padding: 0;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
 .event-card:hover {
-  box-shadow: 0 6px 18px rgba(23, 36, 21, 0.09);
-  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--accent-soft);
+  border-color: rgba(127, 201, 143, 0.35);
+  transform: translateY(-2px);
 }
 
 .event-card-img {
@@ -279,7 +335,7 @@ button {
   border-radius: 8px;
   border: none;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   cursor: pointer;
   transition: background 0.15s ease;
 }
@@ -308,13 +364,13 @@ button:disabled {
   padding: 10px 18px;
   border-radius: 8px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
 .button-link:hover {
   background: var(--accent-hover);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .two-col {

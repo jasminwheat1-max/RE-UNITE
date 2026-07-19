@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import AmbientBackground from './components/AmbientBackground';
 import Navbar from './components/Navbar';
 import ReloadPrompt from './components/ReloadPrompt';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,6 +16,7 @@ import PartnerDashboard from './pages/PartnerDashboard';
 export default function App() {
   return (
     <>
+      <AmbientBackground />
       <Navbar />
       <ReloadPrompt />
       <main>

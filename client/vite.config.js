@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'REUNITE',
-        short_name: 'REUNITE',
+        name: 'RE:UNITE',
+        short_name: 'RE:UNITE',
         description: 'Silent disco, live DJ, rhythmic locks, and breathwork. Rooted in Tamraght, held everywhere.',
         theme_color: '#2f7a4f',
         background_color: '#10160f',
