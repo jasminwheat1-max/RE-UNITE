@@ -13,7 +13,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="brand">
-        EventHub
+        REUNITE
       </Link>
       <div className="nav-links">
         <Link to="/">Events</Link>

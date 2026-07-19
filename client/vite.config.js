@@ -9,11 +9,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'EventHub Marketplace',
-        short_name: 'EventHub',
-        description: 'List, sell, and promote events. Partners can pay to list offers or request collaborations.',
-        theme_color: '#aa3bff',
-        background_color: '#ffffff',
+        name: 'REUNITE',
+        short_name: 'REUNITE',
+        description: 'Silent disco, live DJ, rhythmic locks, and breathwork. Rooted in Tamraght, held everywhere.',
+        theme_color: '#2f7a4f',
+        background_color: '#10160f',
         display: 'standalone',
         start_url: '/',
         icons: [

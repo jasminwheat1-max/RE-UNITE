@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import ReloadPrompt from './components/ReloadPrompt';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import EventDetail from './pages/EventDetail';
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <>
       <Navbar />
+      <ReloadPrompt />
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
