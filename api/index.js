@@ -1,4 +1,3 @@
-import serverless from 'serverless-http';
 import { app } from '../server/app.js';
 import { initDb, pool } from '../server/db.js';
 
@@ -22,8 +21,6 @@ function ensureDb() {
   return dbReady;
 }
 
-const handler = serverless(app);
-
 export default async function (req, res) {
   if (req.url === '/api/ping') {
     res.statusCode = 200;
@@ -32,10 +29,6 @@ export default async function (req, res) {
     return;
   }
   if (req.url === '/api/dbping') {
-    // Raw DB call, completely bypassing Express/session/serverless-http,
-    // to isolate whether the hang is the DB call itself or something in
-    // that middleware chain that only manifests under Vercel's real
-    // invocation (not reproducible via a simulated local req/res).
     const start = Date.now();
     try {
       const result = await withTimeout(pool.query('SELECT 1 as ok'), 8000, 'dbping');
@@ -57,5 +50,8 @@ export default async function (req, res) {
     res.end(JSON.stringify({ error: 'Database init failed', detail: err.message }));
     return;
   }
-  return handler(req, res);
+  // Vercel's Node runtime hands us real http.IncomingMessage/ServerResponse
+  // objects - Express apps are already valid (req, res) handlers, so no
+  // Lambda-style adapter (serverless-http) is needed, or wanted here.
+  return app(req, res);
 }
