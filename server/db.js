@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 
 export const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  connectionTimeoutMillis: 8000,
+  max: 3, // serverless: many short-lived invocations, keep this small
 });
 
 const SCHEMA = `
